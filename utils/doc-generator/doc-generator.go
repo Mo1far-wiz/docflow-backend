@@ -3,6 +3,7 @@ package docgenerator
 import (
 	"docflow-backend/models"
 	"fmt"
+	"os"
 
 	"github.com/signintech/gopdf"
 )
@@ -42,13 +43,13 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 
 	/// Create the content to center
 	content := fmt.Sprintf(
-		"Created for %s %s,\nstudent of %s, %s, %d year of study.\n\n"+
+		"Created for %s %s, student of %s, %s, %d year of study. "+
 			"This document serves as confirmation of the student's status at the institution.",
 		user.FirstName, user.LastName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
 	)
 
 	// Split content into lines
-	lines := splitLines(content, 70) // Adjust max line length for A4 Landscape size
+	lines := splitLines(content, 80) // Adjust max line length for A4 Landscape size
 
 	// Calculate total height for centering
 	lineHeight := fontSize*float64(len(lines)) + 25*float64(len(lines)-1) // Adjusted spacing
@@ -75,6 +76,11 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	pdf.SetFont("LiberationSerif-Regular", "", fontSize-6) // Font size for the date
 	pdf.Cell(nil, "Date of Creation: "+dateStr)
 
+	err = addLogo(pdf, "./assets/logo_stamp.png")
+	if err != nil {
+		return nil, fmt.Errorf("failed to add logo: %v", err)
+	}
+
 	return pdf, nil
 }
 
@@ -94,4 +100,24 @@ func splitLines(text string, maxLen int) []string {
 	}
 	lines = append(lines, text) // Add the remaining part
 	return lines
+}
+
+func addLogo(pdf *gopdf.GoPdf, imagePath string) error {
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		return fmt.Errorf("logo not found: %v", err)
+	}
+
+	// Calculate position: bottom-right corner
+	pageWidth, pageHeight := 842.0, 595.0   // A4 Landscape dimensions
+	imageWidth, imageHeight := 100.0, 100.0 // Example dimensions for the logo
+
+	x := pageWidth - imageWidth - 50
+	y := pageHeight - imageHeight - 50
+
+	// Add the image to the PDF
+	err := pdf.Image(imagePath, x, y, &gopdf.Rect{W: imageWidth, H: imageHeight})
+	if err != nil {
+		return fmt.Errorf("failed to add image: %v", err)
+	}
+	return nil
 }
