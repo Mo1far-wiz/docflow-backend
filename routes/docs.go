@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -79,9 +78,9 @@ func generateDocForUser(context *gin.Context) {
 		return
 	}
 
-	docPath := fmt.Sprintf("./assets/doc-%d.pdf", doc.ID)
+	docPath := fmt.Sprintf("./assets/%d.pdf", doc.ID)
 	docPdf.WritePdf(docPath)
-	defer os.Remove(docPath)
+	// defer os.Remove(docPath)
 
 	err = emailer.SendEmail(user.Email, "Your doc is ready", "Check an attachment.", docPath)
 	if err != nil {

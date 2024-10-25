@@ -8,72 +8,74 @@ import (
 	"github.com/signintech/gopdf"
 )
 
+var docContents = map[string]string{
+	"Certificate of study":                                  "This document serves as confirmation of the student's status at the institution.",
+	"Certificate of Tuition Fees":                           "This is to certify that the student has fulfilled the payment obligations for tuition fees as required by the institution. The tuition fees have been paid in full for the relevant academic period, ensuring the student’s enrollment and participation in the designated program.",
+	"Certificate of fulfillment of the Corporate Agreement": "This is to certify that the obligations set forth under the Corporate Agreement between University and Student have been successfully fulfilled in accordance with the agreed terms. Both parties have met their responsibilities, completing all activities and commitments specified within the agreement to mutual satisfaction.",
+	"Certificate of storage of original documents":          "This is to certify that the original documents submitted by the student are securely stored by University. These documents have been received, verified, and retained in accordance with the university's policies and procedures.",
+	"Certificate of payment for the contract":               "This is to certify that the payment required under the contract between University and the student has been received in full. The financial obligations outlined in the agreement have been fulfilled in accordance with the terms and conditions specified.",
+}
+
 func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
-	const fontSize = 25
+	contents, exists := docContents[doc.DocName]
+	if !exists {
+		return nil, fmt.Errorf("no such certificate exists")
+	}
+
+	const fontSize = 22
 
 	pdf := &gopdf.GoPdf{}
-	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4Landscape}) // Page size: A4 Landscape
+	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4Landscape})
 	pdf.AddPage()
 
-	// Add the TTF font
 	err := pdf.AddTTFFont("font", "./assets/fonts/KyivTypeSans-Medium2.ttf")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load font: %v", err)
 	}
 
-	// Set the font for the document with a larger size
-	err = pdf.SetFont("font", "", 24) // Larger font size for better readability
+	err = pdf.SetFont("font", "", fontSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set font: %v", err)
 	}
 
-	// Center the document name and number
-	pdf.SetX(0)  // Reset X to center
-	pdf.SetY(40) // Set Y position for title
+	pdf.SetX(0)
+	pdf.SetY(40)
 	pdf.CellWithOption(&gopdf.Rect{W: 842, H: 40}, fmt.Sprintf("%s\n (document ID №%d)", doc.DocName, doc.ID), gopdf.CellOption{Align: gopdf.Center})
 
-	// Add a new line for spacing
-	pdf.Br(30) // Increased space after title
+	pdf.Br(30)
 
-	// Set font size for user information
-	err = pdf.SetFont("font", "", fontSize) // Increase font size for user information
+	err = pdf.SetFont("font", "", fontSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set font: %v", err)
 	}
 
-	/// Create the content to center
 	content := fmt.Sprintf(
 		"Issued for %s %s, student of %s, %s, %d year of study. "+
-			"This document serves as confirmation of the student's status at the institution.",
+			contents,
 		user.FirstName, user.LastName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
 	)
 
-	// Split content into lines
-	lines := splitLines(content, 70) // Adjust max line length for A4 Landscape size
+	lines := splitLines(content, 65)
 
-	// Calculate total height for centering
-	lineHeight := fontSize*float64(len(lines)) + 25*float64(len(lines)-1) // Adjusted spacing
-	totalPageHeight := 595.0                                              // A4 landscape height
-	centerY := (totalPageHeight - lineHeight) / 2                         // Calculate Y position for vertical centering
+	lineHeight := fontSize*float64(len(lines)) + 25*float64(len(lines)-1)
+	totalPageHeight := 595.0
+	centerY := (totalPageHeight - lineHeight) / 2
 
-	// Set X position for text to start from the center
-	pdf.SetX(10)      // Set X position to left margin
-	pdf.SetY(centerY) // Set calculated Y position
+	pdf.SetX(15)
+	pdf.SetY(centerY)
 
-	// Add content with the user's information
 	for _, line := range lines {
 		err = pdf.Text(line)
 		if err != nil {
 			return nil, fmt.Errorf("failed to write text: %v", err)
 		}
-		pdf.Br(25) // Increased spacing between lines
+		pdf.Br(25)
 	}
 
-	// Add the creation date at the bottom left
-	dateStr := doc.DateTime.Format("02.01.2006") // Format as dd.mm.yyyy
-	pdf.SetY(540)                                // Adjust Y position for bottom left (just above bottom margin)
-	pdf.SetX(10)                                 // Set X position to left
-	pdf.SetFont("font", "", fontSize-6)          // Font size for the date
+	dateStr := doc.DateTime.Format("02.01.2006")
+	pdf.SetY(540)
+	pdf.SetX(15)
+	pdf.SetFont("font", "", fontSize-6)
 	pdf.Cell(nil, "Issued at : "+dateStr)
 
 	err = addLogo(pdf, "./assets/logo_stamp.png")
