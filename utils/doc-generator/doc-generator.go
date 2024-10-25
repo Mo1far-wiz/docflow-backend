@@ -50,7 +50,7 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	}
 
 	content := fmt.Sprintf(
-		"Issued for %s %s, student of %s, %s, %d year of study. "+
+		"Issued for %s %s, student of %s, %s, %s year of study. "+
 			contents,
 		user.FirstName, user.LastName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
 	)

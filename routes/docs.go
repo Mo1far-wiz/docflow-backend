@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 func getDocsForUser(context *gin.Context) {
 	userId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
-		log.Println("Binding error:", err) // Log the error for debugging
+		log.Println("Binding error:", err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse user ID."})
 		return
 	}
@@ -80,7 +81,7 @@ func generateDocForUser(context *gin.Context) {
 
 	docPath := fmt.Sprintf("./assets/%d.pdf", doc.ID)
 	docPdf.WritePdf(docPath)
-	// defer os.Remove(docPath)
+	defer os.Remove(docPath)
 
 	err = emailer.SendEmail(user.Email, "Your doc is ready", "Check an attachment.", docPath)
 	if err != nil {

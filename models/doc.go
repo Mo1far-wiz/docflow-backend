@@ -11,7 +11,7 @@ type Doc struct {
 	DateTime    time.Time
 	Faculty     string `binding:"required"`
 	Specialty   string `binding:"required"`
-	YearOfStudy int64  `binding:"required"`
+	YearOfStudy string `binding:"required"`
 	UserID      int64
 }
 

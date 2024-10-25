@@ -46,7 +46,7 @@ func createTables() {
 		dateTime DATETIME NOT NULL,
 		faculty TEXT NOT NULL,
 		specialty TEXT NOT NULL,
-		yearOfStudy INTEGER,
+		yearOfStudy TEXT NOT NULL,
 		user_id INTEGER,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);`

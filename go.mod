@@ -7,10 +7,15 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/signintech/gopdf v0.28.0
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.28.0
 )
 
-require github.com/kr/text v0.2.0 // indirect
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect
