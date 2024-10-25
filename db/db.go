@@ -36,6 +36,24 @@ func createTables() {
 		panic("Could not create table.")
 	}
 
+	createDocsTable := `
+	CREATE TABLE IF NOT EXISTS docs (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		docName TEXT NOT NULL,
+		dateTime DATETIME NOT NULL,
+		faculty TEXT NOT NULL,
+		specialty TEXT NOT NULL,
+		yearOfStudy INTEGER,
+		user_id INTEGER,
+		FOREIGN KEY(user_id) REFERENCES users(id)
+	);`
+
+	_, err = DB.Exec(createDocsTable)
+
+	if err != nil {
+		panic("Could not create table.")
+	}
+
 	createEventsTable := `
 	CREATE TABLE IF NOT EXISTS events (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

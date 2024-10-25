@@ -20,6 +20,9 @@ func RegisterRouts(server *gin.Engine) {
 
 	// POST : generate doc (фак, спеца, рік навчання, тип дока + юзер айді)
 	// GET : docs (юзер айді)
+	authenticated.POST("/doc/generate", generateDocForUser)
+	authenticated.GET("/doc/:id", getDocByID)
+	authenticated.GET("/doc/user/:id", getDocsForUser)
 
 	server.POST("/signup", signup)
 	server.POST("/login", login)
