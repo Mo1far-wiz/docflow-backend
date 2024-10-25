@@ -9,20 +9,20 @@ import (
 )
 
 func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
-	const fontSize = 26
+	const fontSize = 25
 
 	pdf := &gopdf.GoPdf{}
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4Landscape}) // Page size: A4 Landscape
 	pdf.AddPage()
 
 	// Add the TTF font
-	err := pdf.AddTTFFont("LiberationSerif-Regular", "./assets/fonts/LiberationSerif-Regular.ttf")
+	err := pdf.AddTTFFont("font", "./assets/fonts/KyivTypeSans-Medium2.ttf")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load font: %v", err)
 	}
 
 	// Set the font for the document with a larger size
-	err = pdf.SetFont("LiberationSerif-Regular", "", 24) // Larger font size for better readability
+	err = pdf.SetFont("font", "", 24) // Larger font size for better readability
 	if err != nil {
 		return nil, fmt.Errorf("failed to set font: %v", err)
 	}
@@ -30,26 +30,26 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	// Center the document name and number
 	pdf.SetX(0)  // Reset X to center
 	pdf.SetY(40) // Set Y position for title
-	pdf.CellWithOption(&gopdf.Rect{W: 842, H: 40}, fmt.Sprintf("%s\n: Document №%d", doc.DocName, doc.ID), gopdf.CellOption{Align: gopdf.Center})
+	pdf.CellWithOption(&gopdf.Rect{W: 842, H: 40}, fmt.Sprintf("%s\n (document ID №%d)", doc.DocName, doc.ID), gopdf.CellOption{Align: gopdf.Center})
 
 	// Add a new line for spacing
 	pdf.Br(30) // Increased space after title
 
 	// Set font size for user information
-	err = pdf.SetFont("LiberationSerif-Regular", "", fontSize) // Increase font size for user information
+	err = pdf.SetFont("font", "", fontSize) // Increase font size for user information
 	if err != nil {
 		return nil, fmt.Errorf("failed to set font: %v", err)
 	}
 
 	/// Create the content to center
 	content := fmt.Sprintf(
-		"Created for %s %s, student of %s, %s, %d year of study. "+
+		"Issued for %s %s, student of %s, %s, %d year of study. "+
 			"This document serves as confirmation of the student's status at the institution.",
 		user.FirstName, user.LastName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
 	)
 
 	// Split content into lines
-	lines := splitLines(content, 80) // Adjust max line length for A4 Landscape size
+	lines := splitLines(content, 70) // Adjust max line length for A4 Landscape size
 
 	// Calculate total height for centering
 	lineHeight := fontSize*float64(len(lines)) + 25*float64(len(lines)-1) // Adjusted spacing
@@ -70,11 +70,11 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	}
 
 	// Add the creation date at the bottom left
-	dateStr := doc.DateTime.Format("02.01.2006")           // Format as dd.mm.yyyy
-	pdf.SetY(540)                                          // Adjust Y position for bottom left (just above bottom margin)
-	pdf.SetX(10)                                           // Set X position to left
-	pdf.SetFont("LiberationSerif-Regular", "", fontSize-6) // Font size for the date
-	pdf.Cell(nil, "Date of Creation: "+dateStr)
+	dateStr := doc.DateTime.Format("02.01.2006") // Format as dd.mm.yyyy
+	pdf.SetY(540)                                // Adjust Y position for bottom left (just above bottom margin)
+	pdf.SetX(10)                                 // Set X position to left
+	pdf.SetFont("font", "", fontSize-6)          // Font size for the date
+	pdf.Cell(nil, "Issued at : "+dateStr)
 
 	err = addLogo(pdf, "./assets/logo_stamp.png")
 	if err != nil {
