@@ -3,7 +3,6 @@ package docgenerator
 import (
 	"docflow-backend/models"
 	"fmt"
-	"time"
 
 	"github.com/signintech/gopdf"
 )
@@ -43,9 +42,9 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 
 	/// Create the content to center
 	content := fmt.Sprintf(
-		"Created for %s,\nstudent of %s, %s, %d year of study.\n\n"+
+		"Created for %s %s,\nstudent of %s, %s, %d year of study.\n\n"+
 			"This document serves as confirmation of the student's status at the institution.",
-		user.FullName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
+		user.FirstName, user.LastName, doc.Faculty, doc.Specialty, doc.YearOfStudy,
 	)
 
 	// Split content into lines
@@ -70,7 +69,7 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	}
 
 	// Add the creation date at the bottom left
-	dateStr := time.Now().Format("02.01.2006")             // Format as dd.mm.yyyy
+	dateStr := doc.DateTime.Format("02.01.2006")           // Format as dd.mm.yyyy
 	pdf.SetY(540)                                          // Adjust Y position for bottom left (just above bottom margin)
 	pdf.SetX(10)                                           // Set X position to left
 	pdf.SetFont("LiberationSerif-Regular", "", fontSize-6) // Font size for the date

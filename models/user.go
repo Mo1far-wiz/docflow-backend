@@ -2,20 +2,23 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"docflow-backend/db"
 	"docflow-backend/utils"
 )
 
 type User struct {
-	ID       int64
-	FullName string `binding:"required"`
-	Email    string `binding:"required"`
-	Password string `binding:"required"`
+	ID          int64
+	FirstName   string
+	LastName    string
+	DateOfBirth time.Time
+	Email       string `binding:"required"`
+	Password    string `binding:"required"`
 }
 
 func (u *User) Save() error {
-	query := "INSERT INTO users (fullName, email, password) VALUES (?, ?, ?);"
+	query := "INSERT INTO users (firstName, lastName, dateOfBirth, email, password) VALUES (?, ?, ?, ?, ?);"
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -29,7 +32,7 @@ func (u *User) Save() error {
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.FullName, u.Email, hashedPassword)
+	result, err := stmt.Exec(u.FirstName, u.LastName, u.DateOfBirth, u.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -64,7 +67,7 @@ func GeUserByID(id int64) (*User, error) {
 	row := db.DB.QueryRow(query, id)
 
 	var user User
-	err := row.Scan(&user.ID, &user.FullName, &user.Email, &user.Password)
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.DateOfBirth, &user.Email, &user.Password)
 	if err != nil {
 		return nil, err
 	}

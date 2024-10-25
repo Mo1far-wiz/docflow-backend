@@ -7,11 +7,11 @@ import (
 
 type Doc struct {
 	ID          int64
-	DocName     string    `binding:"required"`
-	DateTime    time.Time `binding:"required"`
-	Faculty     string    `binding:"required"`
-	Specialty   string    `binding:"required"`
-	YearOfStudy int64     `binding:"required"`
+	DocName     string `binding:"required"`
+	DateTime    time.Time
+	Faculty     string `binding:"required"`
+	Specialty   string `binding:"required"`
+	YearOfStudy int64  `binding:"required"`
 	UserID      int64
 }
 

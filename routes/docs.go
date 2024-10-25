@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,6 +58,7 @@ func generateDocForUser(context *gin.Context) {
 
 	userId := context.GetInt64("userId")
 	doc.UserID = userId
+	doc.DateTime = time.Now()
 
 	err = doc.Save()
 	if err != nil {

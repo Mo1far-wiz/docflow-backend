@@ -27,7 +27,7 @@ func signup(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "User created successfully."})
 }
 
-func login(context *gin.Context) {
+func signin(context *gin.Context) {
 	var user models.User
 
 	err := context.ShouldBindJSON(&user)
