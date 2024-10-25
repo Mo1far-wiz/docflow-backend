@@ -1,3 +1,4 @@
 go.sum
 api-test/
 api.db
+.env

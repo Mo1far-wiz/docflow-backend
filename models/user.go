@@ -9,12 +9,13 @@ import (
 
 type User struct {
 	ID       int64
+	FullName string `binding:"required"`
 	Email    string `binding:"required"`
 	Password string `binding:"required"`
 }
 
 func (u *User) Save() error {
-	query := "INSERT INTO users (email, password) VALUES (?, ?);"
+	query := "INSERT INTO users (fullName, email, password) VALUES (?, ?, ?);"
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -28,7 +29,7 @@ func (u *User) Save() error {
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.Email, hashedPassword)
+	result, err := stmt.Exec(u.FullName, u.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -56,4 +57,17 @@ func (u *User) ValidateCredentials() error {
 	}
 
 	return nil
+}
+
+func GeUserByID(id int64) (*User, error) {
+	query := "SELECT * FROM users WHERE id = ?"
+	row := db.DB.QueryRow(query, id)
+
+	var user User
+	err := row.Scan(&user.ID, &user.FullName, &user.Email, &user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

@@ -2,8 +2,12 @@ package routes
 
 import (
 	"docflow-backend/models"
+	docgenerator "docflow-backend/utils/doc-generator"
+	"docflow-backend/utils/emailer"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -60,5 +64,28 @@ func generateDocForUser(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"message": "Doc created", "doc": doc})
+	user, err := models.GeUserByID(doc.UserID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not find a user for a doc."})
+		return
+	}
+
+	docPdf, err := docgenerator.GeneratePDF(doc, *user)
+	if err != nil {
+		log.Println("Error on PDF generation: ", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create a doc."})
+		return
+	}
+
+	docPath := fmt.Sprintf("./assets/doc-%d.pdf", doc.ID)
+	docPdf.WritePdf(docPath)
+	defer os.Remove(docPath)
+
+	err = emailer.SendEmail(user.Email, "Your doc is ready", "Check an attachment.", docPath)
+	if err != nil {
+		log.Println("Error on sending PDF via email: ", err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not send a doc via email."})
+		return
+	}
+	context.JSON(http.StatusCreated, gin.H{"message": "Doc sent.", "doc": doc})
 }
