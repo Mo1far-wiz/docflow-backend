@@ -86,7 +86,6 @@ func GeneratePDF(doc models.Doc, user models.User) (*gopdf.GoPdf, error) {
 	return pdf, nil
 }
 
-// Helper function to split long text into smaller lines.
 func splitLines(text string, maxLen int) []string {
 	var lines []string
 	for len(text) > maxLen {
@@ -98,9 +97,9 @@ func splitLines(text string, maxLen int) []string {
 			}
 		}
 		lines = append(lines, text[:splitAt])
-		text = text[splitAt+1:] // Skip the space
+		text = text[splitAt+1:]
 	}
-	lines = append(lines, text) // Add the remaining part
+	lines = append(lines, text)
 	return lines
 }
 
@@ -109,14 +108,12 @@ func addLogo(pdf *gopdf.GoPdf, imagePath string) error {
 		return fmt.Errorf("logo not found: %v", err)
 	}
 
-	// Calculate position: bottom-right corner
-	pageWidth, pageHeight := 842.0, 595.0   // A4 Landscape dimensions
-	imageWidth, imageHeight := 100.0, 100.0 // Example dimensions for the logo
+	pageWidth, pageHeight := 842.0, 595.0
+	imageWidth, imageHeight := 100.0, 100.0
 
 	x := pageWidth - imageWidth - 50
 	y := pageHeight - imageHeight - 50
 
-	// Add the image to the PDF
 	err := pdf.Image(imagePath, x, y, &gopdf.Rect{W: imageWidth, H: imageHeight})
 	if err != nil {
 		return fmt.Errorf("failed to add image: %v", err)
